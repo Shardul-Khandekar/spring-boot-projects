@@ -1,14 +1,18 @@
 package com.rest.webservices.restfulservice;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.rest.webservices.restfulservice.entity.User;
 import com.rest.webservices.restfulservice.repository.UserRepository;
@@ -31,11 +35,17 @@ public class UserController {
 //	}
 
 	@PostMapping("/users/add")
-	public String addUser(@RequestBody User user) {
+	public ResponseEntity<String> addUser(@RequestBody User user) {
 
-		userRepository.save(user);
+		User saved = userRepository.save(user);
+		
+		 URI location = ServletUriComponentsBuilder
+				 .fromCurrentRequest()
+				 .replacePath("/user?id={id}")
+				 .buildAndExpand(saved.getId())
+				 .toUri();
 
-		return "User Added!";
+		return ResponseEntity.created(location).build();
 	}
 
 	@GetMapping("/users/all")
